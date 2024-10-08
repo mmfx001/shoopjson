@@ -308,7 +308,7 @@ createCRUDRoutes('/messages', Message);
 createCRUDRoutes('/comments', Comment);
 
 // Serverni ishga tushurish
-const PORT = 5000;
+const PORT = 5001;
 app.listen(PORT, () => {
     console.log(`Server ${PORT} portda ishlamoqda`);
 });
