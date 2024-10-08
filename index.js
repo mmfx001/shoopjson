@@ -18,7 +18,9 @@ const mongoURI = 'mongodb+srv://dilbekshermatov:dilbek1233@cluster0.y5hh3.mongod
 // Mongoose bilan MongoDB'ga ulanish
 mongoose.connect(mongoURI, {
     useNewUrlParser: true,
-    useUnifiedTopology: true
+    useUnifiedTopology: true,
+    connectTimeoutMS: 30000, 
+    socketTimeoutMS: 45000  
 })
 .then(() => console.log('MongoDB bilan muvaffaqiyatli ulandi'))
 .catch(err => console.error('MongoDB ulanish xatosi:', err));
@@ -308,7 +310,7 @@ createCRUDRoutes('/messages', Message);
 createCRUDRoutes('/comments', Comment);
 
 // Serverni ishga tushurish
-const PORT = 5001;
+const PORT = process.env.PORT || 5001;
 app.listen(PORT, () => {
     console.log(`Server ${PORT} portda ishlamoqda`);
 });
