@@ -17,9 +17,10 @@ const mongoURI = 'mongodb+srv://dilbekshermatov:dilbek1233@cluster0.zes33.mongod
 
 // MongoDB ga ulanish
 mongoose.connect(mongoURI, { 
-    useNewUrlParser: true, 
+    useNewUrlParser: true,
     useUnifiedTopology: true,
-    serverSelectionTimeoutMS: 5000 // 5 sekundga kamaytirish
+    connectTimeoutMS: 30000, 
+    socketTimeoutMS: 45000  
 })
 .then(() => console.log('MongoDB ga ulandi'))
 .catch(err => {
