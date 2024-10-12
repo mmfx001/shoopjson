@@ -2,6 +2,9 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 
+// `strictQuery` opsiyasini sozlash
+mongoose.set('strictQuery', false);
+
 // Express ilovasini yaratish
 const app = express();
 
@@ -9,7 +12,7 @@ const app = express();
 app.use(express.json()); // body-parser o'rnini bosadi
 app.use(cors());
 
-// MongoDB ulanish manzili (ma'lumotlar bazasi nomini qo'shing, masalan, 'marsit')
+// MongoDB ulanish manzili (ma'lumotlar bazasi nomi qo'shilgan)
 const mongoURI = 'mongodb+srv://dilbekshermatov:dilbek1233@cluster0.zes33.mongodb.net/marsit?retryWrites=true&w=majority&appName=Cluster0';
 
 // MongoDB ga ulanish
@@ -250,7 +253,14 @@ app.use('/api/projects', createCRUDRoutes(Project, 'Project'));
 app.use('/api/filials', createCRUDRoutes(Filial, 'Filial'));
 
 // Serverni Ishga Tushurish
-const PORT = process.env.PORT || 5001;
+const PORT = process.env.PORT || 5001; // Portni 5000 qiling yoki boshqa portni tanlang
 app.listen(PORT, () => {
     console.log(`Server ${PORT} portda ishlamoqda`);
+}).on('error', (err) => {
+    if (err.code === 'EADDRINUSE') {
+        console.error(`Port ${PORT} allaqachon ishlatilmoqda. Iltimos, boshqa portni tanlang.`);
+        process.exit(1);
+    } else {
+        console.error('Server xatosi:', err);
+    }
 });
