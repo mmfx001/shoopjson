@@ -2,23 +2,28 @@
 
 const express = require('express');
 const mongoose = require('mongoose');
-const bodyParser = require('body-parser');
 const cors = require('cors');
 
 // Express ilovasini yaratish
 const app = express();
 
 // Middleware
-app.use(bodyParser.json());
+app.use(express.json()); // body-parser o'rnini bosadi
 app.use(cors());
 
 // MongoDB ulanish manzili
-const mongoURI = 'mongodb+srv://dilbekshermatov:dilbek1233@cluster0.zes33.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0';
+const mongoURI = 'mongodb+srv://dilbekshermatov:dilbek1233@cluster0.zes33.mongodb.net/marsit?retryWrites=true&w=majority&appName=Cluster0';
 
 // MongoDB ga ulanish
-mongoose.connect(mongoURI, { useNewUrlParser: true, useUnifiedTopology: true })
-    .then(() => console.log('MongoDB ga ulandi'))
-    .catch(err => console.log('MongoDB ulanish xatosi:', err));
+mongoose.connect(mongoURI, { 
+    useNewUrlParser: true, 
+    useUnifiedTopology: true,
+    serverSelectionTimeoutMS: 5000
+})
+.then(() => console.log('MongoDB ga ulandi'))
+.catch(err => {
+    console.error('MongoDB ulanish xatosi:', err.message);
+});
 
 // Mongoose Schemalari va Modellari
 
@@ -154,7 +159,7 @@ const Project = mongoose.model('Project', ProjectSchema);
 const FilialSchema = new mongoose.Schema({
     id: String,
     name: String,
-    loaciton: String
+    loaciton: String // Ehtimol "location" bo'lishi kerak
 }, { timestamps: true });
 
 const Filial = mongoose.model('Filial', FilialSchema);
@@ -176,12 +181,14 @@ const createCRUDRoutes = (model, modelName) => {
     });
 
     // GET Bitta Ma'lumot
-    router.get('/:id', getItem(model), (req, res) => {
+    router.get('/:id', getItem(model, modelName), (req, res) => {
         res.json(res.item);
     });
 
     // POST Yangi Ma'lumot Qo'shish
     router.post('/', async (req, res) => {
+        console.log(`POST /api/${modelName.toLowerCase()}`);
+        console.log('Request Body:', req.body);
         const item = new model(req.body);
         try {
             const newItem = await item.save();
@@ -192,7 +199,7 @@ const createCRUDRoutes = (model, modelName) => {
     });
 
     // PUT Ma'lumotni Yangilash
-    router.put('/:id', getItem(model), async (req, res) => {
+    router.put('/:id', getItem(model, modelName), async (req, res) => {
         Object.assign(res.item, req.body);
         try {
             const updatedItem = await res.item.save();
@@ -203,7 +210,7 @@ const createCRUDRoutes = (model, modelName) => {
     });
 
     // DELETE Ma'lumotni O'chirish
-    router.delete('/:id', getItem(model), async (req, res) => {
+    router.delete('/:id', getItem(model, modelName), async (req, res) => {
         try {
             await res.item.remove();
             res.json({ message: `${modelName} o'chirildi` });
@@ -216,13 +223,13 @@ const createCRUDRoutes = (model, modelName) => {
 };
 
 // Middleware: Ma'lumotni Topish
-function getItem(model) {
+function getItem(model, modelName) {
     return async (req, res, next) => {
         let item;
         try {
             item = await model.findOne({ id: req.params.id });
             if (item == null) {
-                return res.status(404).json({ message: `${model.modelName} topilmadi` });
+                return res.status(404).json({ message: `${modelName} topilmadi` });
             }
         } catch (err) {
             return res.status(500).json({ message: err.message });
