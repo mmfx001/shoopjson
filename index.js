@@ -1,5 +1,3 @@
-// index.js
-
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
@@ -11,14 +9,14 @@ const app = express();
 app.use(express.json()); // body-parser o'rnini bosadi
 app.use(cors());
 
-// MongoDB ulanish manzili
+// MongoDB ulanish manzili (ma'lumotlar bazasi nomini qo'shing, masalan, 'marsit')
 const mongoURI = 'mongodb+srv://dilbekshermatov:dilbek1233@cluster0.zes33.mongodb.net/marsit?retryWrites=true&w=majority&appName=Cluster0';
 
 // MongoDB ga ulanish
 mongoose.connect(mongoURI, { 
     useNewUrlParser: true, 
     useUnifiedTopology: true,
-    serverSelectionTimeoutMS: 5000
+    serverSelectionTimeoutMS: 5000 // 5 sekundga kamaytirish
 })
 .then(() => console.log('MongoDB ga ulandi'))
 .catch(err => {
@@ -159,7 +157,7 @@ const Project = mongoose.model('Project', ProjectSchema);
 const FilialSchema = new mongoose.Schema({
     id: String,
     name: String,
-    loaciton: String // Ehtimol "location" bo'lishi kerak
+    location: String // 'loaciton' xatosi tuzatildi
 }, { timestamps: true });
 
 const Filial = mongoose.model('Filial', FilialSchema);
