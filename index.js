@@ -8,245 +8,181 @@ const cors = require('cors');
 // Express ilovasini yaratish
 const app = express();
 
-// Middleware'lar
+// Middleware
 app.use(bodyParser.json());
 app.use(cors());
 
-// MongoDB ulanishi
-const mongoURI = 'mongodb+srv://dilbekshermatov:dilbek1233@cluster0.y5hh3.mongodb.net/mydatabase?retryWrites=true&w=majority';
+// MongoDB ulanish manzili
+const mongoURI = 'mongodb+srv://dilbekshermatov:dilbek1233@cluster0.zes33.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0';
 
-// Mongoose bilan MongoDB'ga ulanish
-mongoose.connect(mongoURI, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-    connectTimeoutMS: 30000, 
-    socketTimeoutMS: 45000  
-})
-.then(() => console.log('MongoDB bilan muvaffaqiyatli ulandi'))
-.catch(err => console.error('MongoDB ulanish xatosi:', err));
+// MongoDB ga ulanish
+mongoose.connect(mongoURI, { useNewUrlParser: true, useUnifiedTopology: true })
+    .then(() => console.log('MongoDB ga ulandi'))
+    .catch(err => console.log('MongoDB ulanish xatosi:', err));
 
-// Mongoose modellarini ta'riflash
+// Mongoose Schemalari va Modellari
 
-// 1. Tort modeli
-const TortSchema = new mongoose.Schema({
-    id: { type: String, required: true, unique: true },
-    rasm: { type: String, required: true },
-    nomi: { type: String, required: true },
-    soha: { type: String, required: true },
-    tafsiv: { type: String, required: true },
-    narx: { type: String, required: true },
-    manzil: { type: String, required: true },
-    submittedAt: { type: String, required: true },
-    telefon: { type: String, required: true },
-    email: { type: String, required: true },
-    likeCount: { type: Number, default: 0 },
-    location: { type: String, required: true }
-});
-
-const Tort = mongoose.model('Tort', TortSchema);
-
-// 2. QolMehnati modeli
-const QolMehnatiSchema = new mongoose.Schema({
-    id: { type: String, required: true, unique: true },
-    rasm: { type: String, required: true },
-    nomi: { type: String, required: true },
-    soha: { type: String, required: true },
-    tafsiv: { type: String, required: true },
-    manzil: { type: String, required: true },
-    submittedAt: { type: String, required: true },
-    email: { type: String, required: true },
-    telefon: { type: String, required: true },
-    narx: { type: String, required: true },
-    likeCount: { type: Number, default: 0 },
-    location: { type: String, required: true }
-});
-
-const QolMehnati = mongoose.model('QolMehnati', QolMehnatiSchema);
-
-// 3. Kiyimlar modeli
-const KiyimlarSchema = new mongoose.Schema({
-    id: { type: String, required: true, unique: true },
-    rasm: { type: String, required: true },
-    nomi: { type: String, required: true },
-    soha: { type: String, required: true },
-    tafsiv: { type: String, required: true },
-    narx: { type: String, required: true },
-    manzil: { type: String, required: true },
-    submittedAt: { type: String, required: true },
-    email: { type: String, required: true },
-    telefon: { type: String, required: true },
-    likeCount: { type: Number, default: 0 },
-    location: { type: String, required: true }
-});
-
-const Kiyimlar = mongoose.model('Kiyimlar', KiyimlarSchema);
-
-// 4. User modeli
-const LikedItemSchema = new mongoose.Schema({
-    id: { type: String, required: true },
-    nomi: { type: String, required: true },
-    tafsiv: { type: String, required: true },
-    narx: { type: String, required: true },
-    telefon: { type: String, required: true },
-    rasm: { type: String, required: true },
-    manzil: { type: String, required: true },
-    email: { type: String, required: true },
-    submittedAt: { type: String, required: true },
-    likeCount: { type: Number, default: 0 },
-    location: { type: String, required: true }
+// 1. Students
+const TaskSchema = new mongoose.Schema({
+    id: String,
+    Topic: String,
+    description: String,
+    requirement: String,
+    materials: String
 }, { _id: false });
 
-const ViewedItemSchema = new mongoose.Schema({
-    id: { type: String, required: true },
-    narx: { type: String, required: true },
-    email: { type: String, required: true },
-    tafsif: { type: String, required: true },
-    nomi: { type: String, required: true },
-    viewedAt: { type: Date, required: true }
+const ExamSchema = new mongoose.Schema({
+    date: String
 }, { _id: false });
 
-const UserSchema = new mongoose.Schema({
-    id: { type: String, required: true, unique: true },
-    email: { type: String, required: true },
-    password: { type: String, required: true },
-    likedItems: [LikedItemSchema],
-    viewedItems: [ViewedItemSchema],
-    likeCount: { type: Number, default: 0 },
-    submissionLimit: { type: Number, default: 6 }
-});
+const StudentSchema = new mongoose.Schema({
+    id: String,
+    tolov: Number,
+    name: String,
+    password: String,
+    league: String,
+    coins: Number,
+    last: String,
+    balance: Number,
+    attendance: String,
+    xp: String,
+    group: String,
+    time: String,
+    teacher: String,
+    likedItems: [String],
+    image: String,
+    likeItems: [String],
+    tasks: [TaskSchema],
+    coin: Number,
+    exams: [ExamSchema]
+}, { timestamps: true });
 
-const User = mongoose.model('User', UserSchema);
+const Student = mongoose.model('Student', StudentSchema);
 
-// 5. TortBuyurtmalari modeli
-const TortBuyurtmalariSchema = new mongoose.Schema({
-    id: { type: String, required: true, unique: true },
-    nomi: { type: String, required: true },
-    tafsiv: { type: String, required: true },
-    qachongacha: { type: String, required: true },
-    budjet: { type: String, required: true },
-    telefon: { type: String, required: true },
-    manzil: { type: String, required: true },
-    submittedAt: { type: String, required: true },
-    email: { type: String, required: true },
-    likeCount: { type: Number, default: 0 },
-    location: { type: String, required: true }
-});
+// 2. Posts
+const PostSchema = new mongoose.Schema({
+    id: String,
+    comment: String,
+    name: String,
+    likeCount: Number,
+    timestamp: String,
+    image: String
+}, { timestamps: true });
 
-const TortBuyurtmalari = mongoose.model('TortBuyurtmalari', TortBuyurtmalariSchema);
+const Post = mongoose.model('Post', PostSchema);
 
-// 6. QolMehnatiBuyurtmalari modeli
-const QolMehnatiBuyurtmalariSchema = new mongoose.Schema({
-    id: { type: String, required: true, unique: true },
-    nomi: { type: String, required: true },
-    qachongacha: { type: String, required: true },
-    tafsiv: { type: String, required: true },
-    budjet: { type: String, required: true },
-    telefon: { type: String, required: true },
-    email: { type: String, required: true },
-    submittedAt: { type: String, required: true },
-    manzil: { type: String, required: true },
-    likeCount: { type: Number, default: 0 },
-    location: { type: String, required: true }
-});
-
-const QolMehnatiBuyurtmalari = mongoose.model('QolMehnatiBuyurtmalari', QolMehnatiBuyurtmalariSchema);
-
-// 7. KiyimlarBuyurtmalari modeli
-const KiyimlarBuyurtmalariSchema = new mongoose.Schema({
-    id: { type: String, required: true, unique: true },
-    nomi: { type: String, required: true },
-    tafsiv: { type: String, required: true },
-    qachongacha: { type: String, required: true },
-    budjet: { type: String, required: true },
-    telefon: { type: String, required: true },
-    submittedAt: { type: String, required: true },
-    email: { type: String, required: true },
-    manzil: { type: String, required: true },
-    likeCount: { type: Number, default: 0 },
-    location: { type: String, required: true }
-});
-
-const KiyimlarBuyurtmalari = mongoose.model('KiyimlarBuyurtmalari', KiyimlarBuyurtmalariSchema);
-
-// 8. BarchaElonlar modeli
-const BarchaElonlarSchema = new mongoose.Schema({
-    id: { type: String, required: true, unique: true },
-    rasm: { type: String, required: true },
-    nomi: { type: String, required: true },
-    soha: { type: String, required: true },
-    tafsiv: { type: String, required: true },
-    narx: { type: String, required: true },
-    manzil: { type: String, required: true },
-    submittedAt: { type: String, required: true },
-    email: { type: String, required: true },
-    telefon: { type: String, required: true },
-    likeCount: { type: Number, default: 0 },
-    location: { type: String, required: true }
-});
-
-const BarchaElonlar = mongoose.model('BarchaElonlar', BarchaElonlarSchema);
-
-// 9. BarchaBuyurtmalar modeli
-const BarchaBuyurtmalarSchema = new mongoose.Schema({
-    id: { type: String, required: true, unique: true },
-    nomi: { type: String, required: true },
-    qachongacha: { type: String, required: true },
-    tafsiv: { type: String, required: true },
-    budjet: { type: String, required: true },
-    telefon: { type: String, required: true },
-    email: { type: String, required: true },
-    submittedAt: { type: String, required: true },
-    manzil: { type: String, required: true },
-    location: { type: String, required: true }
-});
-
-const BarchaBuyurtmalar = mongoose.model('BarchaBuyurtmalar', BarchaBuyurtmalarSchema);
-
-// 10. Message modeli
-const MessageSchema = new mongoose.Schema({
-    id: { type: String, required: true, unique: true },
-    sender: { type: String, required: true },
-    receiver: { type: String, required: true },
-    text: { type: String, required: true },
-    time: { type: String, required: true },
-    status: { type: String, required: true }
-});
-
-const Message = mongoose.model('Message', MessageSchema);
-
-// 11. Comment modeli
+// 3. Comments
 const CommentSchema = new mongoose.Schema({
-    id: { type: String, required: true, unique: true },
-    productId: { type: String, required: true },
-    comment: { type: String, required: true },
-    userEmail: { type: String, required: true },
-    timestamp: { type: Date, required: true }
-});
+    id: String,
+    productId: String,
+    comment: String,
+    author: String,
+    timestamp: String
+}, { timestamps: true });
 
 const Comment = mongoose.model('Comment', CommentSchema);
 
-// CRUD API Endpoints
+// 4. Shop
+const ShopItemSchema = new mongoose.Schema({
+    id: String,
+    name: String,
+    description: String,
+    price: Number,
+    currency: String,
+    quantity: Number,
+    promotion: String,
+    image: String
+}, { timestamps: true });
 
-// Utility funksiyasi: Model nomi va modelni qabul qilib, CRUD endpointlarini yaratish
-const createCRUDRoutes = (basePath, Model) => {
-    // GET barcha hujjatlarni olish
-    app.get(`${basePath}`, async (req, res) => {
+const ShopItem = mongoose.model('ShopItem', ShopItemSchema);
+
+// 5. Files
+const FileSchema = new mongoose.Schema({
+    id: String,
+    filename: String,
+    fileData: String,
+    userId: String,
+    timestamp: String,
+    status: String
+}, { timestamps: true });
+
+const File = mongoose.model('File', FileSchema);
+
+// 6. Teachers
+const TeacherGroupSchema = new mongoose.Schema({
+    groupNumber: String,
+    time: String,
+    studentscount: String,
+    coins: mongoose.Schema.Types.Mixed,
+    group: String
+}, { _id: false });
+
+const TeacherSchema = new mongoose.Schema({
+    id: String,
+    teacher: String,
+    password: String,
+    students: String,
+    groupcount: String,
+    level: String,
+    groups: [TeacherGroupSchema]
+}, { timestamps: true });
+
+const Teacher = mongoose.model('Teacher', TeacherSchema);
+
+// 7. Rating
+const RatingSchema = new mongoose.Schema({
+    id: String,
+    name: String,
+    QA: String,
+    Ketganlar: String,
+    Retention: String,
+    Usage: String,
+    Umumiy: String
+}, { timestamps: true });
+
+const Rating = mongoose.model('Rating', RatingSchema);
+
+// 8. Projects
+const ProjectSchema = new mongoose.Schema({
+    id: String,
+    name: String
+}, { timestamps: true });
+
+const Project = mongoose.model('Project', ProjectSchema);
+
+// 9. Filials
+const FilialSchema = new mongoose.Schema({
+    id: String,
+    name: String,
+    loaciton: String
+}, { timestamps: true });
+
+const Filial = mongoose.model('Filial', FilialSchema);
+
+// CRUD Operatsiyalari uchun Routerlar
+
+// Generic CRUD funksiyasi
+const createCRUDRoutes = (model, modelName) => {
+    const router = express.Router();
+
+    // GET Barcha Ma'lumotlar
+    router.get('/', async (req, res) => {
         try {
-            const items = await Model.find();
+            const items = await model.find();
             res.json(items);
         } catch (err) {
             res.status(500).json({ message: err.message });
         }
     });
 
-    // GET bitta hujjatni id bo'yicha olish
-    app.get(`${basePath}/:id`, getItem(Model), (req, res) => {
+    // GET Bitta Ma'lumot
+    router.get('/:id', getItem(model), (req, res) => {
         res.json(res.item);
     });
 
-    // POST yangi hujjat qo'shish
-    app.post(`${basePath}`, async (req, res) => {
-        const item = new Model(req.body);
+    // POST Yangi Ma'lumot Qo'shish
+    router.post('/', async (req, res) => {
+        const item = new model(req.body);
         try {
             const newItem = await item.save();
             res.status(201).json(newItem);
@@ -255,8 +191,8 @@ const createCRUDRoutes = (basePath, Model) => {
         }
     });
 
-    // PUT (yangilash) mavjud hujjatni id bo'yicha
-    app.put(`${basePath}/:id`, getItem(Model), async (req, res) => {
+    // PUT Ma'lumotni Yangilash
+    router.put('/:id', getItem(model), async (req, res) => {
         Object.assign(res.item, req.body);
         try {
             const updatedItem = await res.item.save();
@@ -266,25 +202,27 @@ const createCRUDRoutes = (basePath, Model) => {
         }
     });
 
-    // DELETE mavjud hujjatni id bo'yicha
-    app.delete(`${basePath}/:id`, getItem(Model), async (req, res) => {
+    // DELETE Ma'lumotni O'chirish
+    router.delete('/:id', getItem(model), async (req, res) => {
         try {
             await res.item.remove();
-            res.json({ message: 'Deleted' });
+            res.json({ message: `${modelName} o'chirildi` });
         } catch (err) {
             res.status(500).json({ message: err.message });
         }
     });
+
+    return router;
 };
 
-// Middleware funksiyasi: Hujjatni topish
-function getItem(Model) {
+// Middleware: Ma'lumotni Topish
+function getItem(model) {
     return async (req, res, next) => {
         let item;
         try {
-            item = await Model.findOne({ id: req.params.id });
+            item = await model.findOne({ id: req.params.id });
             if (item == null) {
-                return res.status(404).json({ message: 'Cannot find item' });
+                return res.status(404).json({ message: `${model.modelName} topilmadi` });
             }
         } catch (err) {
             return res.status(500).json({ message: err.message });
@@ -295,21 +233,18 @@ function getItem(Model) {
     };
 }
 
-// Endpointlar yaratish
+// Routerlarni Ulash
+app.use('/api/students', createCRUDRoutes(Student, 'Student'));
+app.use('/api/posts', createCRUDRoutes(Post, 'Post'));
+app.use('/api/comments', createCRUDRoutes(Comment, 'Comment'));
+app.use('/api/shop', createCRUDRoutes(ShopItem, 'ShopItem'));
+app.use('/api/files', createCRUDRoutes(File, 'File'));
+app.use('/api/teachers', createCRUDRoutes(Teacher, 'Teacher'));
+app.use('/api/rating', createCRUDRoutes(Rating, 'Rating'));
+app.use('/api/projects', createCRUDRoutes(Project, 'Project'));
+app.use('/api/filials', createCRUDRoutes(Filial, 'Filial'));
 
-createCRUDRoutes('/tort', Tort);
-createCRUDRoutes('/qolmehnati', QolMehnati);
-createCRUDRoutes('/kiyimlar', Kiyimlar);
-createCRUDRoutes('/users', User);
-createCRUDRoutes('/tortbuyurtmalari', TortBuyurtmalari);
-createCRUDRoutes('/qolmehnatibuyurtmalari', QolMehnatiBuyurtmalari);
-createCRUDRoutes('/kiyimlarbuyurtmalari', KiyimlarBuyurtmalari);
-createCRUDRoutes('/barchaelonlar', BarchaElonlar);
-createCRUDRoutes('/barchabuyurtmalar', BarchaBuyurtmalar);
-createCRUDRoutes('/messages', Message);
-createCRUDRoutes('/comments', Comment);
-
-// Serverni ishga tushurish
+// Serverni Ishga Tushurish
 const PORT = process.env.PORT || 5001;
 app.listen(PORT, () => {
     console.log(`Server ${PORT} portda ishlamoqda`);
