@@ -161,7 +161,7 @@ const Project = mongoose.model('Project', ProjectSchema);
 const FilialSchema = new mongoose.Schema({
     id: String,
     name: String,
-    location: String // 'loaciton' xatosi tuzatildi
+    location: String // 'location' xatosi tuzatildi
 }, { timestamps: true });
 
 const Filial = mongoose.model('Filial', FilialSchema);
@@ -254,7 +254,7 @@ app.use('/api/projects', createCRUDRoutes(Project, 'Project'));
 app.use('/api/filials', createCRUDRoutes(Filial, 'Filial'));
 
 // Serverni Ishga Tushurish
-const PORT = process.env.PORT || 5001; // Portni 5000 qiling yoki boshqa portni tanlang
+const PORT = process.env.PORT || 5001; // Portni 5001 qilib o'rnating yoki boshqa portni tanlang
 app.listen(PORT, () => {
     console.log(`Server ${PORT} portda ishlamoqda`);
 }).on('error', (err) => {
