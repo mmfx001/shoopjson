@@ -13,7 +13,7 @@ app.use(express.json()); // body-parser o'rnini bosadi
 app.use(cors());
 
 // MongoDB ulanish manzili (ma'lumotlar bazasi nomi qo'shilgan)
-const mongoURI = 'mongodb+srv://dilbekshermatov:dilbek1233@cluster0.zes33.mongodb.net/marsit?retryWrites=true&w=majority&appName=Cluster0';
+const mongoURI = 'mongodb+srv://dilbekshermatov:x5MfF6l16cvmJKPX@cluster0.iead2.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0';
 
 // MongoDB ga ulanish
 mongoose.connect(mongoURI, { 
@@ -254,7 +254,7 @@ app.use('/api/projects', createCRUDRoutes(Project, 'Project'));
 app.use('/api/filials', createCRUDRoutes(Filial, 'Filial'));
 
 // Serverni Ishga Tushurish
-const PORT = process.env.PORT || 5001; // Portni 5001 qilib o'rnating yoki boshqa portni tanlang
+const PORT = process.env.PORT || 5002; // Portni 5001 qilib o'rnating yoki boshqa portni tanlang
 app.listen(PORT, () => {
     console.log(`Server ${PORT} portda ishlamoqda`);
 }).on('error', (err) => {
