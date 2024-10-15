@@ -1,3 +1,6 @@
+// Muhit o‘zgaruvchilarini yuklash
+require('dotenv').config();
+
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
@@ -9,23 +12,11 @@ mongoose.set('strictQuery', false);
 const app = express();
 
 // Middleware
-app.use(express.json()); // body-parser o'rnini bosadi
+app.use(express.json()); // JSON formatida kelayotgan so'rovlarni ishlov berish
 app.use(cors());
 
-// MongoDB ulanish manzili (ma'lumotlar bazasi nomi qo'shilgan)
-const mongoURI = 'mongodb+srv://dilbekshermatov:x5MfF6l16cvmJKPX@cluster0.iead2.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0';
-
-// MongoDB ga ulanish
-mongoose.connect(mongoURI, { 
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-    connectTimeoutMS: 30000, 
-    socketTimeoutMS: 45000  
-})
-.then(() => console.log('MongoDB ga ulandi'))
-.catch(err => {
-    console.error('MongoDB ulanish xatosi:', err.message);
-});
+// MongoDB ulanish manzili (muenvit o‘zgaruvchisidan olinadi)
+const mongoURI = process.env.MONGO_URI;
 
 // Mongoose Schemalari va Modellari
 
@@ -178,6 +169,7 @@ const createCRUDRoutes = (model, modelName) => {
             const items = await model.find();
             res.json(items);
         } catch (err) {
+            console.error(`GET /api/${modelName.toLowerCase()} xatosi:`, err.message);
             res.status(500).json({ message: err.message });
         }
     });
@@ -196,6 +188,7 @@ const createCRUDRoutes = (model, modelName) => {
             const newItem = await item.save();
             res.status(201).json(newItem);
         } catch (err) {
+            console.error(`POST /api/${modelName.toLowerCase()} xatosi:`, err.message);
             res.status(400).json({ message: err.message });
         }
     });
@@ -207,6 +200,7 @@ const createCRUDRoutes = (model, modelName) => {
             const updatedItem = await res.item.save();
             res.json(updatedItem);
         } catch (err) {
+            console.error(`PUT /api/${modelName.toLowerCase()}/${req.params.id} xatosi:`, err.message);
             res.status(400).json({ message: err.message });
         }
     });
@@ -217,6 +211,7 @@ const createCRUDRoutes = (model, modelName) => {
             await res.item.remove();
             res.json({ message: `${modelName} o'chirildi` });
         } catch (err) {
+            console.error(`DELETE /api/${modelName.toLowerCase()}/${req.params.id} xatosi:`, err.message);
             res.status(500).json({ message: err.message });
         }
     });
@@ -234,6 +229,7 @@ function getItem(model, modelName) {
                 return res.status(404).json({ message: `${modelName} topilmadi` });
             }
         } catch (err) {
+            console.error(`GET_ITEM /api/${modelName.toLowerCase()}/${req.params.id} xatosi:`, err.message);
             return res.status(500).json({ message: err.message });
         }
 
@@ -253,15 +249,46 @@ app.use('/api/rating', createCRUDRoutes(Rating, 'Rating'));
 app.use('/api/projects', createCRUDRoutes(Project, 'Project'));
 app.use('/api/filials', createCRUDRoutes(Filial, 'Filial'));
 
-// Serverni Ishga Tushurish
-const PORT = process.env.PORT || 5002; // Portni 5001 qilib o'rnating yoki boshqa portni tanlang
-app.listen(PORT, () => {
-    console.log(`Server ${PORT} portda ishlamoqda`);
-}).on('error', (err) => {
-    if (err.code === 'EADDRINUSE') {
-        console.error(`Port ${PORT} allaqachon ishlatilmoqda. Iltimos, boshqa portni tanlang.`);
-        process.exit(1);
-    } else {
-        console.error('Server xatosi:', err);
-    }
+// MongoDB ulanish hodisalarini kuzatish
+mongoose.connection.on('connected', () => {
+    console.log('Mongoose: MongoDB ga muvaffaqiyatli ulandi');
 });
+
+mongoose.connection.on('error', (err) => {
+    console.error('Mongoose: Ulanish xatosi:', err);
+});
+
+mongoose.connection.on('disconnected', () => {
+    console.log('Mongoose: MongoDB bilan ulanish uzildi');
+});
+
+// MongoDB ga ulanish va serverni ishga tushurish
+const startServer = async () => {
+    try {
+        await mongoose.connect(mongoURI, { 
+            useNewUrlParser: true,
+            useUnifiedTopology: true,
+            connectTimeoutMS: 30000, // 30 soniya timeout
+            socketTimeoutMS: 45000  // 45 soniya socket timeout
+        });
+        console.log('MongoDB ga ulandi');
+
+        const PORT = process.env.PORT || 5002;
+        app.listen(PORT, () => {
+            console.log(`Server ${PORT} portda ishlamoqda`);
+        }).on('error', (err) => {
+            if (err.code === 'EADDRINUSE') {
+                console.error(`Port ${PORT} allaqachon ishlatilmoqda. Iltimos, boshqa portni tanlang.`);
+                process.exit(1);
+            } else {
+                console.error('Server xatosi:', err);
+            }
+        });
+    } catch (err) {
+        console.error('MongoDB ulanish xatosi:', err.message);
+        process.exit(1); // Ulanish muvaffaqiyatsiz bo'lsa, jarayonni tugatish
+    }
+};
+
+// Serverni boshlash
+startServer();
