@@ -50,10 +50,13 @@ const StudentSchema = new mongoose.Schema({
     likedItems: [String],
     image: String,
     likeItems: [String],
+    status: String,
+    type: String,
     tasks: [TaskSchema],
     coin: Number,
     exams: [ExamSchema]
 }, { timestamps: true });
+
 
 const Student = mongoose.model('Student', StudentSchema);
 
@@ -81,6 +84,9 @@ const CommentSchema = new mongoose.Schema({
 const Comment = mongoose.model('Comment', CommentSchema);
 
 // 4. Shop
+const mongoose = require('mongoose');
+
+// Shop Item Schema
 const ShopItemSchema = new mongoose.Schema({
     id: String,
     name: String,
@@ -88,11 +94,28 @@ const ShopItemSchema = new mongoose.Schema({
     price: Number,
     currency: String,
     quantity: Number,
+    status: String,
+    
     promotion: String,
     image: String
 }, { timestamps: true });
 
 const ShopItem = mongoose.model('ShopItem', ShopItemSchema);
+
+// Shop History Schema (To track the history of actions such as purchases, updates, etc.)
+const ShopHistorySchema = new mongoose.Schema({
+    shopItemId: { type:String },  // Reference to the ShopItem
+    action: { type: String }, // Action performed
+    status: { type: String }, // Action performed
+    quantityChanged: { type: Number }, // Change in quantity (e.g., if item is purchased)
+    priceChanged: { type: Number }, // Change in price
+    date: { type: Date, default: Date.now }, // Date of action
+    user: { type: String } // Who performed the action (could be a user email or ID)
+}, { timestamps: true });
+
+const ShopHistory = mongoose.model('ShopHistory', ShopHistorySchema);
+
+module.exports = { ShopItem, ShopHistory };
 
 // 5. Files
 const FileSchema = new mongoose.Schema({
@@ -108,18 +131,33 @@ const File = mongoose.model('File', FileSchema);
 
 // 6. Teachers
 const TeacherGroupSchema = new mongoose.Schema({
-    groupNumber: String,
-    time: String,
-    studentscount: String,
-    coins: mongoose.Schema.Types.Mixed,
-    group: String
+    havtaKun: String,
+    rooms: String,
+    teacherName: String,
+    groupTime: mongoose.Schema.Types.Mixed,
+    groupNumber: String
 }, { _id: false });
 
 const TeacherSchema = new mongoose.Schema({
     id: String,
-    teacher: String,
+    raqam: String,
     password: String,
     students: String,
+    groupcount: String,
+    level: String,
+    teacher: String,
+    surname:String,
+    rol: String,
+    filial: String,
+    position: String,
+
+    groups: [TeacherGroupSchema]
+}, { timestamps: true });
+
+const AdminSchema = new mongoose.Schema({
+    raqam: String,
+    password: String,
+    filial: String,
     groupcount: String,
     level: String,
     groups: [TeacherGroupSchema]
@@ -241,6 +279,7 @@ function getItem(model, modelName) {
 // Routerlarni Ulash
 app.use('/api/students', createCRUDRoutes(Student, 'Student'));
 app.use('/api/posts', createCRUDRoutes(Post, 'Post'));
+app.use('/api/shophistory', createCRUDRoutes(ShopHistory, 'ShopHistory'));
 app.use('/api/comments', createCRUDRoutes(Comment, 'Comment'));
 app.use('/api/shop', createCRUDRoutes(ShopItem, 'ShopItem'));
 app.use('/api/files', createCRUDRoutes(File, 'File'));
@@ -265,7 +304,7 @@ mongoose.connection.on('disconnected', () => {
 // MongoDB ga ulanish va serverni ishga tushurish
 const startServer = async () => {
     try {
-        await mongoose.connect(mongoURI, { 
+        await mongoose.connect(mongoURI, {
             useNewUrlParser: true,
             useUnifiedTopology: true,
             connectTimeoutMS: 30000, // 30 soniya timeout
