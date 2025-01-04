@@ -122,6 +122,14 @@ const FileSchema = new mongoose.Schema({
 }, { timestamps: true });
 
 const File = mongoose.model('File', FileSchema);
+const MassageSchema = new mongoose.Schema({
+    id: String,
+    text: String,
+    userId: String,
+ 
+}, { timestamps: true });
+
+const Massage = mongoose.model('Massage', MassageSchema);
 
 // Teacher Schema
 const TeacherGroupSchema = new mongoose.Schema({
@@ -272,6 +280,7 @@ app.use('/api/posts', createCRUDRoutes(Post, 'Post'));
 app.use('/api/shophistory', createCRUDRoutes(ShopHistory, 'ShopHistory'));
 app.use('/api/comments', createCRUDRoutes(Comment, 'Comment'));
 app.use('/api/shop', createCRUDRoutes(ShopItem, 'ShopItem'));
+app.use('/api/massage', createCRUDRoutes(Massage, 'Massage'));
 app.use('/api/tolov', createCRUDRoutes(Tolov, 'Tolov'));
 app.use('/api/admin', createCRUDRoutes(Admin, 'Admin'));
 app.use('/api/files', createCRUDRoutes(File, 'File'));
