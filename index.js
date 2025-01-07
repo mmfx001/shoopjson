@@ -43,7 +43,7 @@ const StudentSchema = new mongoose.Schema({
     coins: Number,
     last: String,
     balance: Number,
-    attendance: String,
+    attendance: [String],
     xp: String,
     group: String,
     time: String,
